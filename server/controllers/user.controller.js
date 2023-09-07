@@ -1,12 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const {User, Role} = require("../models");
 const db = require('../config/db')
 
 // User registration
 exports.register = async (req, res) => {
   try {
-    const { username, password, role,email,phone } = req.body;
+    const { username, password, roleId,email,phone } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { username } });
@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create a new user with the specified role
-    const user = await User.create({ username, password: hashedPassword, role,email,phone });
+    const user = await User.create({ username, password: hashedPassword, roleId,email,phone });
 
     res.json({ message: 'Registration successful' });
   } catch (error) {
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
     }
 
     // Generate and send a JWT token upon successful login
-    const token = jwt.sign({ userId: user.id,role:user.role }, 'your-secret-key', {
+    const token = jwt.sign({ userId: user.id,roleId:user.roleId }, 'your-secret-key', {
       expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
     });
 
@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
 // Create user (admin-only)
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, role, email, phone } = req.body;
+    const { username, password, roleId, email, phone } = req.body;
 
     // You may want to add role validation logic here to ensure only admin can create users
     // Example: if (req.user.role !== 'admin') { return res.status(403).json({ error: 'Permission denied' }); }
@@ -73,7 +73,7 @@ exports.createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create a new user with the specified role
-    const user = await User.create({ username, password: hashedPassword, role, email, phone});
+    const user = await User.create({ username, password: hashedPassword, roleId, email, phone});
 
     res.json({ message: 'User created successfully', user });
   } catch (error) {
@@ -86,20 +86,19 @@ exports.getAllUsers = async (req, res) => {
   try {
     // Check if the user making the request has the "admin" role
 
-    if (req.user.role !== 'Admin') {
-      return res.status(403).json({ error: 'Permission denied' });
-    }
+    // if (req.user.roleId !== 1) {
+    //   return res.status(403).json({ error: 'Permission denied' });
+    // }
 
     // Fetch all users from the database
-    const users = await User.findAll();
-
+    const users = await User.findAll({include: [{ model: Role, as: 'roles',attributes: ['name'] }]});
     // Return the list of users (excluding their passwords)
-    const userArray = users.map((user) => {
-      const { id, username, role,email,phone } = user;
-      return { id, username, role,email,phone };
-    });
+    // const userArray = users.map((user) => {
+    //   const { id, username, role,email,phone } = user;
+    //   return { id, username, role,email,phone };
+    // });
 
-    res.json(userArray);
+    res.json(users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error fetching users' });

@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Role = require("../models/Role");
+const {Role} = require("../models");
 const db = require('../config/db')
 
 // User registration

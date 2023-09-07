@@ -27,6 +27,7 @@ app.use(express.json());
 const authRoutes = require("./routes/auth.routes");
 const adminRoutes = require("./routes/admin.routes");
 const roleRoutes=require("./routes/role.routes");
+const propertyRoutes=require("./routes/property.routes");
 sequelize.authenticate().then(() => {
   sequelize.sync({ force: false }).then(() => {
     console.log('Drop and re-sync db...');
@@ -36,6 +37,7 @@ sequelize.authenticate().then(() => {
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/role", roleRoutes);
+app.use("/api/property", propertyRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

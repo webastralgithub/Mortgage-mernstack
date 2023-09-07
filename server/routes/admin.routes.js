@@ -5,6 +5,6 @@ const { verifyToken } = require("../middleware/middleware"); // Import the verif
 
 // Apply the verifyToken middleware to restrict access
 router.post("/create-user",  UserController.createUser);
-router.get("/get-users", verifyToken, UserController.getAllUsers);
+router.get("/get-users", UserController.getAllUsers);
 
 module.exports = router;
