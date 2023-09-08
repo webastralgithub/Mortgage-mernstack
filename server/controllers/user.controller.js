@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
 // Create user (admin-only)
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, roleId, email, phone } = req.body;
+    const { username, password, roleId, email, phone,name } = req.body;
 
     // You may want to add role validation logic here to ensure only admin can create users
     // Example: if (req.user.role !== 'admin') { return res.status(403).json({ error: 'Permission denied' }); }
@@ -73,7 +73,7 @@ exports.createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create a new user with the specified role
-    const user = await User.create({ username, password: hashedPassword, roleId, email, phone});
+    const user = await User.create({ username, password: hashedPassword, roleId, email, phone,name});
 
     res.json({ message: 'User created successfully', user });
   } catch (error) {

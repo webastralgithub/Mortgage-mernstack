@@ -15,6 +15,10 @@ const Property = db.define("property", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  address:{
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   lawyerName:{
     type: DataTypes.STRING,
     allowNull: true,
@@ -35,6 +39,14 @@ const Property = db.define("property", {
   possesionDate:{
     type: DataTypes.DATE,
     allowNull: true,
+  },
+  status: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: 1, // Set the default value to 1
+  },
+  price: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0, // Set the default value to 1
   }
 });
 

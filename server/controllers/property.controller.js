@@ -1,4 +1,4 @@
-const {Property} = require("../models");
+const {Property, User} = require("../models");
 
 // Create a new property
 exports.create = async (req, res) => {
@@ -7,22 +7,30 @@ exports.create = async (req, res) => {
       mls_no,
       propertyType,
       squareFeet,
-      lawyerName,
+      lawyerId,
+      price,
       contractDate,
       subjectRemovalDate,
       completionDate,
+      address,
+      realtorId,
       possesionDate,
+      status
     } = req.body;
     
     const property = await Property.create({
       mls_no,
       propertyType,
       squareFeet,
-      lawyerName,
+      realtorId,
+      price,
+      address,
+      lawyerId,
       contractDate,
       subjectRemovalDate,
       completionDate,
       possesionDate,
+      status
     });
     
     res.json(property);
@@ -34,7 +42,7 @@ exports.create = async (req, res) => {
 // Get all properties
 exports.get = async (req, res) => {
   try {
-    const properties = await Property.findAll();
+    const properties = await Property.findAll({include: [{ model: User, as: 'realtor',attributes: ['name'] },{ model: User, as: 'lawyer',attributes: ['name'] }]});
     res.json(properties);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -51,11 +59,14 @@ exports.update = async (req, res) => {
         mls_no,
         propertyType,
         squareFeet,
+        price,
         lawyerName,
+        address,
         contractDate,
         subjectRemovalDate,
         completionDate,
         possesionDate,
+        status,
       } = req.body;
       
       await property.update({
@@ -63,10 +74,12 @@ exports.update = async (req, res) => {
         propertyType,
         squareFeet,
         lawyerName,
+        price,
         contractDate,
         subjectRemovalDate,
         completionDate,
         possesionDate,
+        status,
       });
       
       res.json(property);
