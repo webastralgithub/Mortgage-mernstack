@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
 
     // Generate and send a JWT token upon successful login
     const token = jwt.sign({ userId: user.id,roleId:user.roleId }, 'your-secret-key', {
-      expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+      expiresIn: '6h', // Token expires in 1 hour (adjust as needed)
     });
 
     res.json({ token });
@@ -66,8 +66,8 @@ exports.createUser = async (req, res) => {
     const { username, password, roleId, email, phone,name } = req.body;
 
     // You may want to add role validation logic here to ensure only admin can create users
-    // Example: if (req.user.role !== 'admin') { return res.status(403).json({ error: 'Permission denied' }); }
 
+ 
     // Hash the password before saving it
     const saltRounds = 10; // You can adjust this value for security
     const hashedPassword = await bcrypt.hash(password, saltRounds);

@@ -2,6 +2,11 @@ const {Property, User} = require("../models");
 
 // Create a new property
 exports.create = async (req, res) => {
+console.log(req.user,"Sfsfsfsfs")
+  if(req.user.roleId !== 1) 
+  {
+    return res.status(403).json({ error: 'Permission denied' });
+  }
   try {
     const {
       mls_no,
@@ -60,7 +65,8 @@ exports.update = async (req, res) => {
         propertyType,
         squareFeet,
         price,
-        lawyerName,
+        realtorId,
+        lawyerId,
         address,
         contractDate,
         subjectRemovalDate,
@@ -73,7 +79,8 @@ exports.update = async (req, res) => {
         mls_no,
         propertyType,
         squareFeet,
-        lawyerName,
+        lawyerId,
+        realtorId,
         price,
         contractDate,
         subjectRemovalDate,

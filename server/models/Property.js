@@ -19,10 +19,7 @@ const Property = db.define("property", {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  lawyerName:{
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
+
   contractDate:{
     type: DataTypes.DATE,
     allowNull: true,
