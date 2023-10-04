@@ -8,5 +8,6 @@ const { verifyToken } = require("../middleware/middleware");
 router.post("/create", verifyToken, RoleController.create);
 
 router.get("/", RoleController.get);
-
+router.post("/permission", RoleController.addPermission);
+router.put("/update/:id", RoleController.update);
 module.exports = router;

@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {Role} = require("../models");
+const {Role, Permission} = require("../models");
 const db = require('../config/db')
 
 // User registration
@@ -22,65 +22,71 @@ exports.get = async ( req,res) => {
     
   
       // Create a new user with the specified role
-      const role = await Role.findAll();
+      const role =await Role.findAll({
+        include: Permission, // This will fetch associated permissions
+      });
   
       res.json({roles:role });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Role fetch  failed' });
+      res.status(500).json({ error: error });
+    }
+  };
+  exports.addPermission = async (req, res) => {
+    try {
+      // Extract data from the request body
+      const { roleId, resource_name,permission,value} = req.body;
+  
+      // Validate the incoming data (e.g., check if required fields are present)
+  
+      // Create a new permission record in the database
+      const existingPermission = await Permission.findOne({
+        where: {
+          roleId: roleId,
+          resource_name: resource_name,
+        },
+      });
+  
+      if (existingPermission) {
+        // If it exists, update the permission based on the provided "permission" field
+        existingPermission[permission] = value;
+        await existingPermission.save();
+        res.status(200).json({ message: 'Permission updated successfully' });
+      } else {
+        // If it doesn't exist, create a new permission with the provided values
+        const newPermission = await Permission.create({
+          roleId: roleId,
+          resource_name: resource_name,
+          [permission]: value,
+        });
+        res.status(201).json({ message: 'Permission created successfully' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error });
+    }
+  };
+  exports.update = async (req, res) => {
+    const id = req.params.id;
+    try {
+      const property = await Role.findByPk(id);
+      if (property) {
+        const {
+          name
+        } = req.body;
+        
+        await property.update({
+          name
+        });
+        
+        res.json(property);
+      } else {
+        res.status(404).json({ error: 'Role not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   };
 
-// User login
-exports.login = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
 
-    // Find the user by username
-    const user = await User.findOne({ where: { username } });
 
-    // Check if the user exists
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Check if the password is correct
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid password' });
-    }
-
-    // Generate and send a JWT token upon successful login
-    const token = jwt.sign({ userId: user.id }, 'your-secret-key', {
-      expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
-    });
-
-    res.json({ token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Login failed' });
-  }
-};
-
-// Create user (admin-only)
-exports.createUser = async (req, res) => {
-  try {
-    const { username, password, role } = req.body;
-
-    // You may want to add role validation logic here to ensure only admin can create users
-    // Example: if (req.user.role !== 'admin') { return res.status(403).json({ error: 'Permission denied' }); }
-
-    // Hash the password before saving it
-    const saltRounds = 10; // You can adjust this value for security
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create a new user with the specified role
-    const user = await User.create({ username, password: hashedPassword, role,email,phone });
-
-    res.json({ message: 'User created successfully', user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'User creation failed' });
-  }
-};
